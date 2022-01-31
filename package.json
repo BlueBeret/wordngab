@@ -1,0 +1,25 @@
+{
+  "name": "wordngab",
+  "version": "1.0.0",
+  "description": "A simple bot to solve wordle",
+  "main": "app.js",
+  "scripts": {
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/BlueBeret/wordngab.git"
+  },
+  "keywords": [
+    "wordle",
+    "bot",
+    "selenium",
+    "puppeteer"
+  ],
+  "author": "Lurifos",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BlueBeret/wordngab/issues"
+  },
+  "homepage": "https://github.com/BlueBeret/wordngab#readme"
+}
