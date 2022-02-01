@@ -4,7 +4,8 @@
   "description": "A simple bot to solve wordle",
   "main": "app.js",
   "scripts": {
-    "test": "node app.js"
+    "test": "node app.js",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
@@ -21,5 +22,10 @@
   "bugs": {
     "url": "https://github.com/BlueBeret/wordngab/issues"
   },
-  "homepage": "https://github.com/BlueBeret/wordngab#readme"
+  "homepage": "https://github.com/BlueBeret/wordngab#readme",
+  "dependencies": {
+    "chromedriver": "^97.0.3",
+    "selenium": "^2.20.0",
+    "selenium-webdriver": "^4.1.1"
+  }
 }
