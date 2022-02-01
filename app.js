@@ -29,14 +29,15 @@ async function getState(driver){
     let corrects = []
     let absents = []
     let presents = []
-
-    let keyboard = await driver.executeScript('return document.querySelector("body > game-app").shadowRoot.querySelector("#game > game-keyboard").shadowRoot.querySelector("#keyboard")')
-    let letters = await keyboard.findElements(By.tagName('button'))
-    await sleep("2000")
+    await sleep("2500")
+    let row = await driver.executeScript('return document.querySelector("body > game-app").shadowRoot.querySelector("#board > game-row:nth-child(1)").shadowRoot.querySelector("div")')
+    let letters = await row.findElements(By.tagName('game-tile'))
+    
+    let index = 0
     for( const letter of letters){
-        switch (await letter.getAttribute('data-state')) {
+        switch (await letter.getAttribute('evaluation')) {
             case 'correct':
-                corrects.push(await letter.getText())
+                corrects.push([await letter.getText(), index])
                 break;
             case 'absent':
                 absents.push(await letter.getText())
@@ -47,6 +48,7 @@ async function getState(driver){
             default:
                 break;
         }
+        index++
     }
 
     return {corrects, absents, presents}
@@ -60,7 +62,7 @@ async function main(){
         await driver.get("https://www.powerlanguage.co.uk/wordle/");
         await driver.findElement(By.xpath('/html/body')).click()
         
-        await guess(driver, "grape")
+        await guess(driver, "those")
 
         let {corrects, absents, presents} = await getState(driver)
         console.log(corrects, absents, presents)
