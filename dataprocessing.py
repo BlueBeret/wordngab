@@ -1,5 +1,5 @@
 from multiprocessing.spawn import old_main_modules
-
+from string import ascii_lowercase
 def temp():
     with open("DICTIONARY","r") as infile:
         dictionary = infile.read().splitlines()
@@ -63,5 +63,15 @@ def check():
             if c:
                 print(word)
 
-        
-check()
+
+def checkExistingalphabet(word):
+    count = 0
+    letters = []
+    for i in ascii_lowercase:
+        if i in word:
+            count += 1
+            letters.append(i)
+
+    return count, letters
+
+print(checkExistingalphabet("colinstareought"))

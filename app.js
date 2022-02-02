@@ -1,16 +1,18 @@
 require('chromedriver');
 
-const { WebElement } = require('selenium-webdriver');
 const {Builder, By, Key, until} = require('selenium-webdriver');
 const readline = require('readline');
 const fs = require('fs');
+const {Options} = require('selenium-webdriver/chrome');
 
 // loading dictionary
 var dictionary = fs.readFileSync('DICTIONARY').toString().split("\n");
 console.log(`Dictionary loaded ${dictionary.length} words`)
 
 var strongCandidates = [
-    "stare","colin"
+    "stare",
+    "colin",
+    "ought"
 ]
 
 function input(query) {
@@ -142,7 +144,12 @@ function getCandidates(corrects,absents, presents, initial) {
 async function main(){
 
     try {
-        var driver = await new Builder().forBrowser('chrome').build();
+        const options = new Options()
+        options.addArguments('--user-data-dir=./user-data')
+        var driver = await new Builder()
+        .setChromeOptions(options)
+        .forBrowser('chrome')
+        .build();
 
         // open game and close the tutorial
         await driver.get("https://www.powerlanguage.co.uk/wordle/");
@@ -160,8 +167,12 @@ async function main(){
             // get the candidates (still need to improve)
             let candidates = getCandidates(res.corrects, res.absents, res.presents, initial)
             do {
+                if (candidates.length == 0){
+                    console.log("No candidates")
+                    return
+                }
                 var guessWord = candidates.splice(Math.floor(Math.random()*candidates.length), 1)[0]; // random chose the candidate
-            } while (guessWord in guessedWords); // check if the word has been guessed
+            } while (guessedWords.includes(guessWord)); // check if the word has been guessed
 
 
             // guess the word
