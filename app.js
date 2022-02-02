@@ -38,8 +38,9 @@ async function getState(driver){
     let corrects = []
     let absents = []
     let presents = []
-    await sleep("2500")
+    await sleep("2500") // need to wait wordle animation
 
+    // there is a total of 6 rows
     const rowSelector = [
         'return document.querySelector("body > game-app").shadowRoot.querySelector("#board > game-row:nth-child(1)").shadowRoot.querySelector("div")',
         'return document.querySelector("body > game-app").shadowRoot.querySelector("#board > game-row:nth-child(2)").shadowRoot.querySelector("div")',
@@ -50,12 +51,12 @@ async function getState(driver){
 
     ]
     for (let i=0; i<rowSelector.length; i++){
-        let row = await driver.executeScript(rowSelector[i])
-        let letters = await row.findElements(By.tagName('game-tile'))
+        let row = await driver.executeScript(rowSelector[i]) // get the row (shadow root)
+        let letters = await row.findElements(By.tagName('game-tile')) // find 5 tiles
         
-        let index = 0
+        let index = 0 // need index for correct letters
         for( const letter of letters){
-            switch (await letter.getAttribute('evaluation')) {
+            switch (await letter.getAttribute('evaluation')) { // from this we now if the letter is correct, absent or present
                 case 'correct':
                     corrects.push([(await letter.getText()).toLowerCase(), index])
                     break;
@@ -77,17 +78,18 @@ async function getState(driver){
 
 
 function getCandidates(corrects,absents, presents, initial) {
+
+    // give strong candidates if we dont have enough information
     if ((corrects.length * 2 + presents.length) < 3) {
         return strongCandidates
     }
+
+    // candidates must contain all correct letter in correct position
     let candidates = []
     for (const word of initial) {
         let c = true
         for (const correct of corrects) {
             if (word[correct[1]] != correct[0]) {
-                if (word == "moist"){
-                    console.log("error in correct")
-                }
                 c = false
                 break
             }
@@ -98,14 +100,12 @@ function getCandidates(corrects,absents, presents, initial) {
         }
     }
 
+    // candidates must not contain any absent letter
     let candidates_2 = []
     for (const word of candidates) {
         let c = true
         for (const absent of absents) {
             if (word.indexOf(absent) != -1) {
-                if (word == "moist"){
-                    console.log("error in absent")
-                }
                 c = false
                 break
             }
@@ -116,6 +116,8 @@ function getCandidates(corrects,absents, presents, initial) {
         }
     }
 
+
+    // candidates must contain all present letter
     let candidates_3 = []
     for (const word of candidates_2) {
         let c = true
@@ -133,7 +135,7 @@ function getCandidates(corrects,absents, presents, initial) {
             candidates_3.push(word)
         }
     }
-    console.log(candidates_3)
+
     return candidates_3
 }
 
@@ -142,26 +144,35 @@ async function main(){
     try {
         var driver = await new Builder().forBrowser('chrome').build();
 
+        // open game and close the tutorial
         await driver.get("https://www.powerlanguage.co.uk/wordle/");
         await driver.findElement(By.xpath('/html/body')).click()
 
-
-
+        var guessedWords = []
         let initial = dictionary
-        for (let i=0; i<3; i++){
+        // 6 total guesses
+        for (let i=0; i<6; i++){
+            
+            // get the corrects, absents and presents letters
             var res = await getState(driver)
-            console.log(res)
+            // console.log(res)
+
+            // get the candidates (still need to improve)
             let candidates = getCandidates(res.corrects, res.absents, res.presents, initial)
-            let guessWord = candidates.splice(Math.floor(Math.random()*candidates.length), 1)[0];
+            do {
+                var guessWord = candidates.splice(Math.floor(Math.random()*candidates.length), 1)[0]; // random chose the candidate
+            } while (guessWord in guessedWords); // check if the word has been guessed
 
-            console.log(guessWord)
 
+            // guess the word
+            console.log(`Guessing ${guessWord}, from ${candidates.length} canditates `)
             await guess(driver, guessWord)
+            guessedWords.push(guessWord)
             
         }
 
     } finally {
-        console.log("Done");
+        console.log("finally");
     } 
     const ans = await input("Enter to quit")
     driver.close()
