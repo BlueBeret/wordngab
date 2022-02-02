@@ -9,3 +9,6 @@ package-lock.json
 
 # chrome user data
 user-data/
+
+#raw word database
+database/

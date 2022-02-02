@@ -8,12 +8,14 @@ const {Options} = require('selenium-webdriver/chrome');
 // loading dictionary
 var dictionary = fs.readFileSync('DICTIONARY').toString().split("\n");
 console.log(`Dictionary loaded ${dictionary.length} words`)
-
 var strongCandidates = [
     "stare",
     "colin",
     "ought"
 ]
+
+var cheatmode = true
+
 
 function input(query) {
     const rl = readline.createInterface({
@@ -145,7 +147,11 @@ async function main(){
 
     try {
         const options = new Options()
-        options.addArguments('--user-data-dir=./user-data')
+
+        if (!cheatmode){
+            options.addArguments('--user-data-dir=./user-data')
+        }
+        
         var driver = await new Builder()
         .setChromeOptions(options)
         .forBrowser('chrome')

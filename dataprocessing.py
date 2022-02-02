@@ -74,4 +74,38 @@ def checkExistingalphabet(word):
 
     return count, letters
 
-print(checkExistingalphabet("colinstareought"))
+def makeDictionary():
+    dictionary = []
+    counter = 0
+    filenames = ["index.adj", "index.adv", "index.noun", "index.verb"]
+    for i in filenames:
+        with open("TEMP", 'w') as outfile:
+            with open("./database/dict/"+i,'r') as infile:
+                for line in infile:
+                    firstword = line.split(" ")[0]
+                    if len(firstword) == 5 and firstword.isalpha():
+                        counter += 1
+                        dictionary.append(firstword+"\n")
+                    elif len(firstword) == 4 and firstword.isalpha():
+                        counter+=1
+                        dictionary.append(firstword+"s\n")
+
+    with open("TEMP", 'w') as outfile:
+            with open("./database/dict/index.sense",'r') as infile:
+                for line in infile:
+                    firstword = line.split("%")[0]
+                    if len(firstword) == 5 and firstword.isalpha():
+                        counter += 1
+                        dictionary.append(firstword+"\n")
+                    elif len(firstword) == 4 and firstword.isalpha():
+                        counter+=1
+                        dictionary.append(firstword+"s\n")
+
+    print(len(dictionary))
+    dictionary = set(dictionary)
+    print(len(dictionary))
+    with open("TEMP", 'w') as outfile:
+        for i in dictionary:
+            outfile.write(i)
+
+makeDictionary()
