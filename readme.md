@@ -1,8 +1,9 @@
-
 # WordNgab
 
-WordNgab is a simple bot that play Wordle game. The app have 3 mode, cheat mode, try mode and normal mode. In cheatmode, the bot will repeatly replay the game until it get the answer, meanwhile in normal mode the bot will play like a normal human. Try mode is normal mode but without saving the session. 
- - cheat mode and try mode isn't done yet.
+ WordNgab is a simple bot that play Wordle game. App available in 3 mode:
+ - normal mode `npm start`. The app will run normal and save its session in userdata
+ - test mode `npm test`. The app will run normal without saving its session
+ - cheat mode `node app.js -c`. The app will clear cookies and restart the game without deleting any information it know. Usefull to get today wordle answer.
 
 
 ### How to run
@@ -19,4 +20,3 @@ WordNgab is a simple bot that play Wordle game. The app have 3 mode, cheat mode,
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
-

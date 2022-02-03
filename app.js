@@ -14,8 +14,9 @@ var strongCandidates = [
     "ought"
 ]
 
-var cheatmode = true
-
+function unique(array) {
+    return array.filter((el, index, array) => index === array.indexOf(el));
+}
 
 function input(query) {
     const rl = readline.createInterface({
@@ -77,6 +78,10 @@ async function getState(driver){
         }
     }
 
+    // remove duplicates
+    corrects = unique(corrects)
+    absents = unique(absents)
+    presents = unique(presents)
     return {corrects, absents, presents}
 }
 
@@ -143,12 +148,13 @@ function getCandidates(corrects,absents, presents, initial) {
     return candidates_3
 }
 
-async function main(){
+async function main(isTestMode){
 
     try {
         const options = new Options()
-        options.addArguments('--user-data-dir=./user-data')
-        
+        if (!isTestMode){
+            options.addArguments('--user-data-dir=./user-data')
+        }
         var driver = await new Builder()
         .setChromeOptions(options)
         .forBrowser('chrome')
@@ -172,7 +178,8 @@ async function main(){
             do {
                 if (candidates.length == 0){
                     console.log("No candidates")
-                    return
+                    i = 6
+                    break
                 }
                 var guessWord = candidates.splice(Math.floor(Math.random()*candidates.length), 1)[0]; // random chose the candidate
             } while (guessedWords.includes(guessWord)); // check if the word has been guessed
@@ -193,56 +200,59 @@ async function main(){
 }
 
 async function cheatMode(){
-
-    try {
-        const options = new Options()
+    console.log("cheat mode is not implemented yet")
+    // try {
+    //     const options = new Options()
         
-        var driver = await new Builder()
-        .setChromeOptions(options)
-        .forBrowser('chrome')
-        .build();
+    //     var driver = await new Builder()
+    //     .setChromeOptions(options)
+    //     .forBrowser('chrome')
+    //     .build();
 
-        // open game and close the tutorial
-        await driver.get("https://www.powerlanguage.co.uk/wordle/");
-        await driver.findElement(By.xpath('/html/body')).click()
+    //     // open game and close the tutorial
+    //     await driver.get("https://www.powerlanguage.co.uk/wordle/");
+    //     await driver.findElement(By.xpath('/html/body')).click()
 
-        var guessedWords = []
-        let initial = dictionary
-        // 6 total guesses
-        for (let i=0; i<6; i++){
+    //     var guessedWords = []
+    //     let initial = dictionary
+    //     // 6 total guesses
+    //     for (let i=0; i<6; i++){
             
-            // get the corrects, absents and presents letters
-            var res = await getState(driver)
-            // console.log(res)
+    //         // get the corrects, absents and presents letters
+    //         var res = await getState(driver)
+    //         // console.log(res)
 
-            // get the candidates (still need to improve)
-            let candidates = getCandidates(res.corrects, res.absents, res.presents, initial)
-            do {
-                if (candidates.length == 0){
-                    console.log("No candidates")
-                    return
-                }
-                var guessWord = candidates.splice(Math.floor(Math.random()*candidates.length), 1)[0]; // random chose the candidate
-            } while (guessedWords.includes(guessWord)); // check if the word has been guessed
+    //         // get the candidates (still need to improve)
+    //         let candidates = getCandidates(res.corrects, res.absents, res.presents, initial)
+    //         do {
+    //             if (candidates.length == 0){
+    //                 console.log("No candidates")
+    //                 return
+    //             }
+    //             var guessWord = candidates.splice(Math.floor(Math.random()*candidates.length), 1)[0]; // random chose the candidate
+    //         } while (guessedWords.includes(guessWord)); // check if the word has been guessed
 
 
-            // guess the word
-            console.log(`Guessing ${guessWord}, from ${candidates.length} canditates `)
-            await guess(driver, guessWord)
-            guessedWords.push(guessWord)
+    //         // guess the word
+    //         console.log(`Guessing ${guessWord}, from ${candidates.length} canditates `)
+    //         await guess(driver, guessWord)
+    //         guessedWords.push(guessWord)
             
-        }
+    //     }
 
-    } finally {
-        console.log("finally");
-    } 
-    const ans = await input("Enter to quit")
-    driver.close()
+    // } finally {
+    //     console.log("finally");
+    // } 
+    // const ans = await input("Enter to quit")
+    // driver.close()
 }
 
-if (cheatmode){
+const args = process.argv.slice(2)
+
+if (args[0] == "-c"){
     cheatMode()
-} else{
-    main
+} else if (args[0] == "-t"){
+    main(true)
+} else {
+    main(false)
 }
-main()
