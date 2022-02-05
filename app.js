@@ -14,6 +14,8 @@ var strongCandidates = [
     "ought"
 ]
 
+var strongCandidatesCounter  = 0
+
 function unique(array) {
     return array.filter((el, index, array) => index === array.indexOf(el));
 }
@@ -79,17 +81,21 @@ async function getState(driver){
     }
 
     // remove duplicates
-    corrects = unique(corrects)
+    corrects = [...new Set(corrects)]
     absents = unique(absents)
     presents = unique(presents)
     return {corrects, absents, presents}
 }
 
+function onlyUnique(value, index, self) {
+    return self.indexOf(value) === index;
+  }
 
 function getCandidates(corrects,absents, presents, initial) {
-
     // give strong candidates if we dont have enough information
-    if ((corrects.length * 2 + presents.length) < 3) {
+    console.log(presents.length)
+    if (((corrects.length * 2 + presents.length) < 3) && strongCandidatesCounter <3 ) {
+        strongCandidatesCounter += 1
         return strongCandidates
     }
 
@@ -145,6 +151,10 @@ function getCandidates(corrects,absents, presents, initial) {
         }
     }
 
+    if (candidates_3.length > 9){
+        return strongCandidates
+    }
+    console.log(candidates_3)
     return candidates_3
 }
 
@@ -201,50 +211,52 @@ async function main(isTestMode){
 
 async function cheatMode(){
     console.log("cheat mode is not implemented yet")
-    // try {
-    //     const options = new Options()
+    try {
+        const options = new Options()
+    
+        var driver = await new Builder()
+        .setChromeOptions(options)
+        .forBrowser('chrome')
+        .build();
+
+        // open game and close the tutorial
+        await driver.get("https://www.powerlanguage.co.uk/wordle/");
+        await driver.findElement(By.xpath('/html/body')).click()
+        var guessedWords = []
+        let initial = dictionary
+        var res = await getState(driver)
+        res.corrects = unique(res.corrects)
+        while(res.corrects.length <5){
+            // 6 total guesses
+            for (let i=0; i<6; i++){
         
-    //     var driver = await new Builder()
-    //     .setChromeOptions(options)
-    //     .forBrowser('chrome')
-    //     .build();
-
-    //     // open game and close the tutorial
-    //     await driver.get("https://www.powerlanguage.co.uk/wordle/");
-    //     await driver.findElement(By.xpath('/html/body')).click()
-
-    //     var guessedWords = []
-    //     let initial = dictionary
-    //     // 6 total guesses
-    //     for (let i=0; i<6; i++){
-            
-    //         // get the corrects, absents and presents letters
-    //         var res = await getState(driver)
-    //         // console.log(res)
-
-    //         // get the candidates (still need to improve)
-    //         let candidates = getCandidates(res.corrects, res.absents, res.presents, initial)
-    //         do {
-    //             if (candidates.length == 0){
-    //                 console.log("No candidates")
-    //                 return
-    //             }
-    //             var guessWord = candidates.splice(Math.floor(Math.random()*candidates.length), 1)[0]; // random chose the candidate
-    //         } while (guessedWords.includes(guessWord)); // check if the word has been guessed
-
-
-    //         // guess the word
-    //         console.log(`Guessing ${guessWord}, from ${candidates.length} canditates `)
-    //         await guess(driver, guessWord)
-    //         guessedWords.push(guessWord)
-            
-    //     }
-
-    // } finally {
-    //     console.log("finally");
-    // } 
-    // const ans = await input("Enter to quit")
-    // driver.close()
+                // get the corrects, absents and presents letters
+                res = await getState(driver)
+                res.corrects = unique(res.corrects)
+                // console.log(res
+                // get the candidates (still need to improve)
+                let candidates = getCandidates(res.corrects, res.absents, res.presents, initial)
+                do {
+                    if (candidates.length == 0){
+                        console.log("No candidates")
+                        return
+                    }
+                    var guessWord = candidates.splice(Math.floor(Math.random()*candidates.length), 1)[0]; // random chose the candidate
+                } while (guessedWords.includes(guessWord)); // check if the word has been guesse
+                // guess the word
+                console.log(`Guessing ${guessWord}, from ${candidates.length} canditates `)
+                await guess(driver, guessWord)
+                guessedWords.push(guessWord)
+            }
+        }
+        console.log(res.corrects)
+      
+         
+    } finally {
+         console.log("finally");
+        } 
+    const ans = await input("Enter to quit")
+    driver.close()
 }
 
 const args = process.argv.slice(2)
