@@ -82,8 +82,8 @@ async function getState(driver){
 
     // remove duplicates
     corrects = [...new Set(corrects)]
-    absents = unique(absents)
-    presents = unique(presents)
+    absents = [...new Set(absents)]
+    presents = [...new Set(presents)]
     return {corrects, absents, presents}
 }
 
@@ -92,9 +92,9 @@ function onlyUnique(value, index, self) {
   }
 
 function getCandidates(corrects,absents, presents, initial) {
+
     // give strong candidates if we dont have enough information
-    console.log(presents.length)
-    if (((corrects.length * 2 + presents.length) < 3) && strongCandidatesCounter <3 ) {
+    if (((corrects.length * 2 + presents.length) < 3) && strongCandidatesCounter <2 ) {
         strongCandidatesCounter += 1
         return strongCandidates
     }
@@ -150,10 +150,6 @@ function getCandidates(corrects,absents, presents, initial) {
             candidates_3.push(word)
         }
     }
-
-    if (candidates_3.length > 9){
-        return strongCandidates
-    }
     console.log(candidates_3)
     return candidates_3
 }
@@ -175,7 +171,6 @@ async function main(isTestMode){
         await driver.findElement(By.xpath('/html/body')).click()
 
         var guessedWords = []
-        let initial = dictionary
         // 6 total guesses
         for (let i=0; i<6; i++){
             
@@ -184,7 +179,7 @@ async function main(isTestMode){
             // console.log(res)
 
             // get the candidates (still need to improve)
-            let candidates = getCandidates(res.corrects, res.absents, res.presents, initial)
+            let candidates = getCandidates(res.corrects, res.absents, res.presents, dictionary)
             do {
                 if (candidates.length == 0){
                     console.log("No candidates")
