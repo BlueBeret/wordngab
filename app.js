@@ -80,6 +80,16 @@ async function getState(driver){
         }
     }
 
+    // remove absent if it's in corrects
+    for (let i=0; i<corrects.length; i++){
+        do {
+            j = absents.indexOf(corrects[i][0])
+            if (j != -1){
+                absents.splice(j,1)
+            }
+        } while (j != -1);
+    }
+
     // remove duplicates
     corrects = [...new Set(corrects)]
     absents = [...new Set(absents)]
@@ -94,7 +104,7 @@ function onlyUnique(value, index, self) {
 function getCandidates(corrects,absents, presents, initial) {
 
     // give strong candidates if we dont have enough information
-    if (((corrects.length * 2 + presents.length) < 3) && strongCandidatesCounter <2 ) {
+    if (((corrects.length * 2 + presents.length) < 3) && strongCandidatesCounter <3 ) {
         strongCandidatesCounter += 1
         return strongCandidates
     }
@@ -173,7 +183,7 @@ async function main(isTestMode){
         var guessedWords = []
         // 6 total guesses
         for (let i=0; i<6; i++){
-            
+            let isDone = false
             // get the corrects, absents and presents letters
             var res = await getState(driver)
             // console.log(res)
@@ -183,17 +193,19 @@ async function main(isTestMode){
             do {
                 if (candidates.length == 0){
                     console.log("No candidates")
-                    i = 6
-                    break
+                    isDone = true
+                    i= 6
                 }
                 var guessWord = candidates.splice(Math.floor(Math.random()*candidates.length), 1)[0]; // random chose the candidate
             } while (guessedWords.includes(guessWord)); // check if the word has been guessed
 
 
             // guess the word
-            console.log(`Guessing ${guessWord}, from ${candidates.length} canditates `)
-            await guess(driver, guessWord)
-            guessedWords.push(guessWord)
+            if (!isDone){
+                console.log(`Guessing ${guessWord}, from ${candidates.length} canditates `)
+                await guess(driver, guessWord)
+                guessedWords.push(guessWord)
+            }
             
         }
 
