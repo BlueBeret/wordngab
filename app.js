@@ -9,10 +9,9 @@ const {Options} = require('selenium-webdriver/chrome');
 var dictionary = fs.readFileSync('DICTIONARY').toString().split("\n");
 console.log(`Dictionary loaded ${dictionary.length} words`)
 var strongCandidates = [
-    "skela",
     "stare",
     "colin",
-    // "ought"
+    "ought"
 ]
 
 var strongCandidatesCounter  = 0
